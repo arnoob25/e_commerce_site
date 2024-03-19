@@ -22,7 +22,7 @@ class Product(models.Model):
     """
     title = models.CharField(max_length=256)
     seller = models.ForeignKey(
-        User, on_delete=models.CASCADE, related_name='products')
+        User, related_name='products', null=True, on_delete=models.SET_NULL,)
     description = models.TextField()
     category = models.CharField(max_length=100, choices=PRODUCT_CATEGORIES)
     price = models.DecimalField(max_digits=10, decimal_places=2)
@@ -69,12 +69,14 @@ class Offer(models.Model):
     """
     title = models.CharField(max_length=100)
     products = models.ManyToManyField(
-        Product, related_name='offers'
+        Product, related_name='offers', null=True
     )
     discount = models.PositiveIntegerField()
     promo_code = models.CharField(max_length=20, unique=True, blank=True)
 
     def __str__(self):
-        product_titles = ', '.join(
-            product.title for product in self.products.all())  # pylint: disable=no-member
-        return f"{self.title} at {self.discount}% off for: {product_titles}"
+        if self.products:
+            product_titles = ', '.join(
+                product.title for product in self.products.all())  # pylint: disable=no-member
+            return f"{self.title} at {self.discount}% off for: {product_titles}"
+        return f"{self.title} at {self.discount}"
