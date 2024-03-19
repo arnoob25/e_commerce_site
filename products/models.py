@@ -1,34 +1,72 @@
-"""models for creation and discovery of products"""
+"""Models for creation and discovery of products"""
 from django.db import models
 from django.contrib.auth import get_user_model
+from configurations import PRODUCT_CATEGORIES
 
-user_model = get_user_model()
+User = get_user_model()
 
 
 class Product(models.Model):
-    """information on the product"""
-    title = models.CharField(max_length=256, blank=False)
-    seller = models.ForeignKey(user_model, on_delete=models.CASCADE)
+    """
+    Model representing a product.
+
+    Attributes:
+        title (str): The title of the product.
+        seller (User): The user selling the product.
+        description (str): A description of the product.
+        category (str): The category the product belongs to.
+        price (float): The price of the product.
+        stock (int): The number of units in stock.
+    """
+    title = models.CharField(max_length=256)
+    seller = models.ForeignKey(
+        User, on_delete=models.CASCADE, related_name='products')
     description = models.TextField()
-    category = models.TextField()
-    price = models.FloatField()
-    stock = models.IntegerField()  # amount of units in stock
+    category = models.CharField(max_length=100, choices=PRODUCT_CATEGORIES)
+    price = models.DecimalField(max_digits=10, decimal_places=2)
+    stock = models.PositiveIntegerField()  #
+
+    def __str__(self):
+        return f"Product: {self.title} - Category: {self.category} - Price: {self.price}"
 
 
 class ProductImage(models.Model):
-    """image for a product"""
-    product = models.ForeignKey(Product, on_delete=models.CASCADE)
-    caption = models.TextField()
-    image = models.ImageField()
+    """
+    Model representing an image for a product.
 
-    class Meta:
-        """meta information for the model"""
-        unique_together = (('product', 'image'),) # Enforces unique combination of product and image
+    Attributes:
+        product (Product): The product the image belongs to.
+        caption (str): A caption for the image.
+        image (ImageField): The image file.
+    """
+    product = models.ForeignKey(
+        Product, on_delete=models.CASCADE, related_name='images'
+    )
+    caption = models.TextField(blank=True)  # Caption is optional
+    image = models.ImageField(upload_to='product_images')
+
+    def __str__(self):
+        return f"Image {self.pk} for {self.product.title}"  # pylint: disable=no-member
 
 
 class Offer(models.Model):
-    """manage offers"""
-    title = models.TextField()
-    product = models.ForeignKey(Product, on_delete=models.DO_NOTHING)
-    discount = models.IntegerField()  # percentage
-    promo_code = models.TextField()
+    """
+    Model representing an offer for a product.
+
+    Attributes:
+        title (str): The title of the offer.
+        products (QuerySet): The products the offer is for.
+        discount (int): The percentage discount for the offer.
+        promo_code (str): The promo code for the offer.
+    """
+    title = models.CharField(max_length=100)
+    products = models.ManyToManyField(
+        Product, related_name='offers'
+    )
+    discount = models.PositiveIntegerField()
+    promo_code = models.CharField(max_length=20, unique=True, blank=True)
+
+    def __str__(self):
+        product_titles = ', '.join(
+            product.title for product in self.products.all())  # pylint: disable=no-member
+        return f"{self.title} at {self.discount}% off for: {product_titles}"
