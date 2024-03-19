@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+
+{% block title %}
+  Discover Products
+{% endblock %}
+
+{% block body %}
+  
+    {% for product in object_list %}
+      <a href="{% url 'products:details' product.slug %}">
+        <h1>{{ product.title }}</h1>
+      </a>
+      <p>Category: {{ product.category }}</p>
+      <p>Price: {{ product.price }}</p>
+    {% endfor %}
+  
+{% endblock %}
