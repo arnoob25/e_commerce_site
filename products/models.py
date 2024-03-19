@@ -7,7 +7,7 @@ user_model = get_user_model()
 
 class Product(models.Model):
     """information on the product"""
-    title = models.CharField(max_length=256, required=True)
+    title = models.CharField(max_length=256, blank=False)
     seller = models.ForeignKey(user_model, on_delete=models.CASCADE)
     description = models.TextField()
     category = models.TextField()
