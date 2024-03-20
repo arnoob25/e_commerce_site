@@ -1,4 +1,5 @@
 """Models for creation and discovery of products"""
+import uuid
 from django.db import models
 from django.contrib.auth import get_user_model
 from django.utils.text import slugify
@@ -34,7 +35,7 @@ class Product(models.Model):
 
     def save(self, *args, **kwargs):
         if not self.slug:
-            self.slug = slugify(self.title)
+            self.slug = slugify(self.title) + '-' + str(uuid.uuid4())[:8]
         super().save(*args, **kwargs)
 
 
@@ -51,7 +52,7 @@ class ProductImage(models.Model):
         Product, on_delete=models.CASCADE, related_name='images'
     )
     caption = models.TextField(blank=True)  # Caption is optional
-    image = models.ImageField(upload_to='storage/product_images')
+    image = models.ImageField(upload_to='media/product_images')
 
     def __str__(self):
         return f"Image {self.pk} for {self.product.title}"  # pylint: disable=no-member
@@ -69,7 +70,7 @@ class Offer(models.Model):
     """
     title = models.CharField(max_length=100)
     products = models.ManyToManyField(
-        Product, related_name='offers', null=True
+        Product, related_name='offers'
     )
     discount = models.PositiveIntegerField()
     promo_code = models.CharField(max_length=20, unique=True, blank=True)

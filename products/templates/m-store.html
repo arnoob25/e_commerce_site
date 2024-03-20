@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+
+{% block title %}
+  Store
+{% endblock %}
+
+{% block body %}
+  <a href="{% url 'products:m-create_product' %}">Create a new product</a><br>
+  <a href="{% url 'products:m-create_offer' %}">Create a new offer</a>
+
+  {% for product in object_list %}
+    <a href="{% url 'products:m-details' product.slug %}"><h1>{{ product.title }}</h1></a>
+    <p>Category: {{ product.category }}</p>
+    <p>Price: {{ product.price }}</p>
+    {% with product.images.first as first_image %}
+      {% if first_image %}
+        <img src="{{ first_image.image.url }}" alt="{{ first_image.caption }}" width="200" height="100" />
+      {% endif %}
+    {% endwith %}
+  {% endfor %}
+{% endblock %}

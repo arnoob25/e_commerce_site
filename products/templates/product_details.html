@@ -1,12 +1,26 @@
 {% extends 'base.html' %}
 
-{% block title %}{{ product.title }}{% endblock title %}
+{% block title %}
+  {{ product.title }}
+{% endblock %}
 
 {% block body %}
-    <h1>{{ product.title }}</h1>
-    <p>{{ product.description }}</p>
-    <p>Category: {{ product.category }}</p>
-    <p>Price: {{ product.price }}</p>
-    <p>Stock: {{ product.stock }}</p>
-    <p>Seller: {{ product.seller.username }}</p>
-{% endblock body %}
+  <h1>{{ product.title }}</h1>
+  <p>{{ product.description }}</p>
+  <p>Category: {{ product.category }}</p>
+  <p>Price: {{ product.price }}</p>
+  <p>Stock: {{ product.stock }}</p>
+  <p>Seller: {{ product.seller.username }}</p>
+
+  {% if request.user.is_authenticated %}
+    <form method="post">
+      {% csrf_token %}
+      <button type="submit" name="action" value="add_to_cart">Add to Cart</button>
+      <button type="submit" name="action" value="buy_now">Buy Now</button>
+    </form>
+  {% else %}
+    <p>
+      Please <a href="{% url 'login' %}">log in</a> to add items to your cart.
+    </p>
+  {% endif %}
+{% endblock %}

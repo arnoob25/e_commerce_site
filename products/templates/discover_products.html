@@ -5,13 +5,26 @@
 {% endblock %}
 
 {% block body %}
-  
-    {% for product in object_list %}
-      <a href="{% url 'products:details' product.slug %}">
-        <h1>{{ product.title }}</h1>
-      </a>
-      <p>Category: {{ product.category }}</p>
-      <p>Price: {{ product.price }}</p>
-    {% endfor %}
-  
+  <form method="GET">
+    <label for="category">Filter by category:</label>
+    <select name="category" id="category">
+      <option value="all">All Categories</option>
+      {% for category_key, category_value in categories %}
+        <option value="{{ category_key }}">{{ category_value }}</option>
+      {% endfor %}
+    </select>
+    <button type="submit">Filter</button>
+  </form>
+
+  {% for product in object_list %}
+    <a href="{% url 'products:details' product.slug %}"><h1>{{ product.title }}</h1></a>
+    <p>Category: {{ product.category }}</p>
+    <p>Price: {{ product.price }}</p>
+
+    {% with product.images.first as first_image %}
+      <img src="{{ first_image.image.url }}" alt="{{ first_image.image.caption }}" width="200" height="100" />
+    {% endwith %}
+
+    <img src="" />
+  {% endfor %}
 {% endblock %}

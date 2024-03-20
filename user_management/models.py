@@ -21,3 +21,4 @@ class BuyerInfo(models.Model):
 
 class MerchantInfo(models.Model):
     """stores additional information on the merchant"""
+    store_name = models.TextField()

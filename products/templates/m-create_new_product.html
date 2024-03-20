@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}
+  Create New Product
+{% endblock %}
+
+{% block body %}
+  <h1>Create New Product</h1>
+  <form method="POST" enctype="multipart/form-data">
+    {% csrf_token %}
+    {{ form.as_p }}
+
+    <h3>Add an Image</h3>
+    {{ image_formset.management_form }}
+    {% for image_form in image_formset %}
+      <div class="image-form">{{ image_form.as_p }}</div>
+    {% endfor %}
+
+    <button type="submit">Create Product</button>
+  </form>
+{% endblock %}
