@@ -1,13 +1,16 @@
 {% extends 'base.html' %}
 
-
 {% block title %}
-    
+    My Orders
 {% endblock title %}
-    
-
 
 {% block body %}
-    <h1>This is the cart</h1>
+    {% for order in object_list %}
+        <h3>{{ order.product.title }}</h3>
+        <p>Price: {{ order.price }}</p>
+        <p>Quantity: {{ order.quantity }}</p>
+        <p>Discount: {{ order.discount }}</p>
+    {% empty %}
+        <p>You have no orders.</p>
+    {% endfor %}
 {% endblock body %}
-    

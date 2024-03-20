@@ -15,25 +15,39 @@ class Order(models.Model):
         product (Product): The product ordered.
         buyer (User): The user who made the order.
         seller (User): The user selling the product.
-        price (Decimal): The price of the product.
+        unit_price (Decimal): The unit price of the product.
         quantity (PositiveInteger): The quantity of the product ordered.
         discount (PositiveInteger): The discount applied to the order.
         is_confirmed (Boolean): Whether the order is confirmed.
-        transaction_method (Text): The method of transaction.
+        payment_method (Text): The method of transaction.
+        cost (Decimal): Final cost after accounting for quantity, and applying discount.
     """
     product = models.ForeignKey(Product, null=True, on_delete=models.SET_NULL)
     buyer = models.ForeignKey(
         user_model, null=True, on_delete=models.SET_NULL, related_name='buyer_orders')
     seller = models.ForeignKey(
         user_model, null=True, on_delete=models.SET_NULL, related_name='seller_orders')
-    price = models.DecimalField(max_digits=10, decimal_places=2)
+    unit_price = models.DecimalField(max_digits=10, decimal_places=2)
     quantity = models.PositiveIntegerField(default=1)
     discount = models.PositiveIntegerField(default=0)
     is_confirmed = models.BooleanField(default=False)
-    payment_method = models.CharField(max_length=20, choices=PAYMENT_METHOD, blank=True)
+    payment_method = models.CharField(
+        max_length=20, choices=PAYMENT_METHOD, blank=True)
 
     def __str__(self):
         return f"Order {self.pk} for {self.product.title}"  # pylint: disable=no-member
+
+    @property
+    def calculate_cost(self):
+        """Calculate the final cost after accounting for quantity, and applying discount."""
+        discount_amount = (self.unit_price * self.discount) / 100
+        discounted_price = self.unit_price - discount_amount
+        return discounted_price * self.quantity
+
+    def save(self, *args, **kwargs):
+        self.unit_price = self.product.price  # pylint: disable=no-member
+        self.cost = self.calculate_cost # pylint: disable=attribute-defined-outside-init
+        super().save(*args, **kwargs)
 
 
 class Transaction(models.Model):

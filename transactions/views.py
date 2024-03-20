@@ -12,6 +12,14 @@ class OrderListView(ListView):
     model = models.Order
     template_name = "cart.html"
 
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        queryset = queryset.filter(buyer=self.request.user, is_confirmed=False)
+
+        return queryset
+    
+
+
 
 class TransactionListView(ListView):
     """Purchase history page: display the past transactions made by the user"""

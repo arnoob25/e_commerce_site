@@ -48,7 +48,6 @@ class ProductDetailView(LoginRequiredMixin, DetailView): # pylint: disable=too-m
                 product=product,
                 buyer=request.user,
                 seller=product.seller,
-                price=product.price,
             )
 
             if action == 'buy_now':
