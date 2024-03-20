@@ -52,7 +52,7 @@ class ProductImage(models.Model):
         Product, on_delete=models.CASCADE, related_name='images'
     )
     caption = models.TextField(blank=True)  # Caption is optional
-    image = models.ImageField(upload_to='media/product_images')
+    image = models.ImageField(upload_to='product_images')
 
     def __str__(self):
         return f"Image {self.pk} for {self.product.title}"  # pylint: disable=no-member
@@ -73,6 +73,9 @@ class Offer(models.Model):
         Product, related_name='offers'
     )
     discount = models.PositiveIntegerField()
+    created = models.DateTimeField(auto_now_add=True)
+    expire_at = models.DateTimeField(null=True, blank=True)
+    is_active = models.BooleanField(default=True)
     promo_code = models.CharField(max_length=20, unique=True, blank=True)
 
     def __str__(self):

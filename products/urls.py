@@ -14,6 +14,6 @@ urlpatterns = [
     path('m/product/<str:slug>',
          views.MerchantProductDetailView.as_view(), name='m-details'
          ),
-    path('m/product/create', views.MerchantProductCreateView.as_view(), name='m-create_product'),
-    path('m/offer/create', views.MerchantOfferCreateView.as_view(), name='m-create_offer'),
+    path('m/create/product', views.MerchantProductCreateView.as_view(), name='m-create_product'),
+    path('m/create/offer', views.MerchantOfferCreateView.as_view(), name='m-create_offer'),
 ]

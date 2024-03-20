@@ -1,16 +1,24 @@
 {% extends 'base.html' %}
-
-{% block title %}
-    My Orders
-{% endblock title %}
+{% load template_filters %}
 
 {% block body %}
-    {% for order in object_list %}
-        <h3>{{ order.product.title }}</h3>
-        <p>Price: {{ order.price }}</p>
-        <p>Quantity: {{ order.quantity }}</p>
-        <p>Discount: {{ order.discount }}</p>
+  <h1>Your Cart</h1>
+  {% for order in object_list %}
+    {% with form=forms|get_item:order.id %}
+      <div>
+        <h2>{{ order.product.title }}</h2>
+        <p>Unit Price: {{ order.unit_price }}</p>
+        <form method="POST">
+          {% csrf_token %}
+          <input type="hidden" name="order_id" value="{{ order.id }}" />
+          {{ form.as_p }}
+          <button type="submit">Update Order</button>
+        </form>
+        <p>Discount: {{ order.discount }}%</p>
+        <p>Final Cost: {{ order.final_cost }}</p>
+      </div>
+    {% endwith %}
     {% empty %}
-        <p>You have no orders.</p>
-    {% endfor %}
-{% endblock body %}
+    <p>Your cart is empty.</p>
+  {% endfor %}
+{% endblock %}

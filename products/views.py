@@ -38,6 +38,8 @@ class ProductDetailView(LoginRequiredMixin, DetailView): # pylint: disable=too-m
     model = models.Product
     template_name = "product_details.html"
 
+    # TODO: order one product once
+
     def post(self, request, *args, **kwargs):
         """handle 'add to cart' and 'buy now' requests"""
         product = self.get_object()
@@ -119,7 +121,7 @@ class MerchantProductCreateView(CreateView):  # pylint: disable=too-many-ancesto
 class MerchantOfferCreateView(CreateView):  # pylint: disable=too-many-ancestors
     """allow the merchant to create and apply new offers"""
     model = models.Offer
-    fields = ['title', 'products', 'discount', 'promo_code']
+    fields = ['title', 'products', 'discount', 'expire_at', 'promo_code']
     template_name = "m-create_new_offer.html"
 
     def get_success_url(self):

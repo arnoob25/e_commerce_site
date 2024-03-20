@@ -1,5 +1,6 @@
 """models for managing wishlist, cart, checkout, sales analytics etc."""
 from django.db import models
+from django.utils import timezone
 from django.contrib.auth import get_user_model
 from configurations import PAYMENT_METHOD
 from products.models import Product
@@ -20,7 +21,8 @@ class Order(models.Model):
         discount (PositiveInteger): The discount applied to the order.
         is_confirmed (Boolean): Whether the order is confirmed.
         payment_method (Text): The method of transaction.
-        cost (Decimal): Final cost after accounting for quantity, and applying discount.
+        final_cost (Decimal): Final cost after accounting for quantity, and applying discount.
+        promo_code (str): The promo code entered for the order.
     """
     product = models.ForeignKey(Product, null=True, on_delete=models.SET_NULL)
     buyer = models.ForeignKey(
@@ -31,11 +33,11 @@ class Order(models.Model):
     quantity = models.PositiveIntegerField(default=1)
     discount = models.PositiveIntegerField(default=0)
     is_confirmed = models.BooleanField(default=False)
+    final_cost = models.DecimalField(
+        max_digits=10, decimal_places=2, blank=True)
     payment_method = models.CharField(
         max_length=20, choices=PAYMENT_METHOD, blank=True)
-
-    def __str__(self):
-        return f"Order {self.pk} for {self.product.title}"  # pylint: disable=no-member
+    promo_code = models.CharField(max_length=20, blank=True)
 
     @property
     def calculate_cost(self):
@@ -44,10 +46,40 @@ class Order(models.Model):
         discounted_price = self.unit_price - discount_amount
         return discounted_price * self.quantity
 
+    @property
+    def apply_discount(self):
+        """Apply the highest discount offer, accounting the promo code and expiry."""
+        offers = self.product.offers.filter(  # pylint: disable=no-member
+            is_active=True)
+        max_discount = 0
+        applied_offer = None
+
+        for offer in offers:
+            if offer.expire_at and offer.expire_at < timezone.now():
+                # Skip expired offers
+                continue
+
+            if offer.promo_code and offer.promo_code == self.promo_code:
+                # user entered a promo code
+                self.discount = offer.discount
+                applied_offer = offer
+                break
+
+            if offer.discount > max_discount:
+                max_discount = offer.discount
+                applied_offer = offer
+
+        if applied_offer:
+            self.discount = applied_offer.discount
+
     def save(self, *args, **kwargs):
         self.unit_price = self.product.price  # pylint: disable=no-member
-        self.cost = self.calculate_cost # pylint: disable=attribute-defined-outside-init
+        self.apply_discount  # pylint: disable=pointless-statement
+        self.final_cost = self.calculate_cost
         super().save(*args, **kwargs)
+
+    def __str__(self):
+        return f"Order {self.pk} for {self.product.title}"  # pylint: disable=no-member
 
 
 class Transaction(models.Model):
