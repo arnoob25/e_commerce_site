@@ -11,12 +11,17 @@ class UserInfo(models.Model):
     """stores additional information about the user"""
     user = models.ForeignKey(user_model, on_delete=models.CASCADE)
     user_type = models.CharField(
-        max_length=10, choices=USER_TYPES, default=DEFAULT_USER_TYPE, required=True
+        max_length=10, choices=USER_TYPES, default=DEFAULT_USER_TYPE
     )
 
 
 class BuyerInfo(models.Model):
     """stores additional information on the buyer"""
+    user = models.ForeignKey(user_model, on_delete=models.CASCADE)
+    street_address = models.CharField(max_length=200)
+    city = models.CharField(max_length=100)
+    state = models.CharField(max_length=100)
+    zip_code = models.CharField(max_length=10)
 
 
 class MerchantInfo(models.Model):

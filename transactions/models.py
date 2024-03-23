@@ -1,9 +1,11 @@
 """models for managing wishlist, cart, checkout, sales analytics etc."""
+from typing import Iterable
 from django.db import models
 from django.utils import timezone
 from django.contrib.auth import get_user_model
 from configurations import PAYMENT_METHOD
 from products.models import Product
+from user_management.models import BuyerInfo
 
 user_model = get_user_model()
 
@@ -101,6 +103,22 @@ class Transaction(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     total_amount = models.FloatField()
     payment_method = models.CharField(max_length=20, choices=PAYMENT_METHOD)
+    delivery_address = models.TextField()
+
+    def save(self, *args, **kwargs):
+        try:
+            buyer_info = BuyerInfo.objects.get(  # pylint: disable=no-member
+                user=self.buyer)
+            self.delivery_address = ', '.join([
+                buyer_info.street_address,
+                buyer_info.city,
+                buyer_info.state,
+                buyer_info.zip_code
+            ])
+        except BuyerInfo.DoesNotExist:  # pylint: disable=no-member
+            pass
+
+        return super().save(*args, **kwargs)
 
     def __str__(self):
         return f"Transaction {self.pk} by {self.buyer.username}"  # pylint: disable=no-member

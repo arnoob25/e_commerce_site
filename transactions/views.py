@@ -2,7 +2,9 @@
 from django.views.generic import ListView
 from django.shortcuts import redirect
 from django.contrib.auth.mixins import LoginRequiredMixin
+import configurations
 from . import models, forms
+
 
 
 # region - buyer end
@@ -19,12 +21,22 @@ class OrderListView(LoginRequiredMixin, ListView): # TODO: ability to delete ord
         queryset = queryset.filter(buyer=self.request.user, is_confirmed=False)
         return queryset
 
+    def count_subtotal(self, items):
+        """Counts the final cost of all the current orders"""
+        subtotal = 0
+
+        for item in items:
+            subtotal = subtotal + item.final_cost
+
+        return subtotal
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         order_list = context['object_list']
         forms_with_instances = {order.id: self.form_class(
             instance=order) for order in order_list}
         context['forms'] = forms_with_instances
+        context['subtotal'] = self.count_subtotal(order_list)
         return context
 
     def post(self, request, *args, **kwargs):
