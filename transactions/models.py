@@ -59,11 +59,13 @@ class Order(models.Model):
                 # Skip expired offers
                 continue
 
-            if offer.promo_code and offer.promo_code == self.promo_code:
-                # user entered a promo code
-                self.discount = offer.discount
-                applied_offer = offer
-                break
+            if offer.promo_code:
+                if offer.promo_code == self.promo_code:
+                    # user entered a promo code
+                    self.discount = offer.discount
+                    applied_offer = offer
+                    break
+                continue
 
             if offer.discount > max_discount:
                 max_discount = offer.discount
