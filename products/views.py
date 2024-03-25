@@ -7,6 +7,7 @@ from django.urls import reverse_lazy
 from django.views.generic import ListView, DetailView, CreateView
 from configurations import PRODUCT_CATEGORIES
 from transactions.models import Order
+from user_management.models import MerchantInfo
 from . import models
 
 
@@ -33,7 +34,7 @@ class ProductListView(ListView):
         return context
 
 
-class ProductDetailView(LoginRequiredMixin, DetailView): # pylint: disable=too-many-ancestors
+class ProductDetailView(LoginRequiredMixin, DetailView):  # pylint: disable=too-many-ancestors
     """Allow buyers to view the product's specifications and make an order"""
     model = models.Product
     template_name = "product_details.html"
@@ -74,6 +75,15 @@ class MerchantProductListView(LoginRequiredMixin, ListView):  # pylint: disable=
     def get_queryset(self):
         queryset = super().get_queryset()
         return queryset.filter(seller=self.request.user)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        merchant_info = MerchantInfo.objects.get(  # pylint: disable=no-member
+            user=self.request.user)
+        context['store_name'] = merchant_info.store_name
+        print(merchant_info.store_name)
+
+        return context
 
 
 class MerchantProductDetailView(DetailView):

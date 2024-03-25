@@ -26,4 +26,5 @@ class BuyerInfo(models.Model):
 
 class MerchantInfo(models.Model):
     """stores additional information on the merchant"""
+    user = models.ForeignKey(user_model, on_delete=models.CASCADE)
     store_name = models.TextField()

@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+
+{% block body %}
+  <h2>Sign Up</h2>
+  <form method="post">
+    {% csrf_token %}
+    <label for="user_type">Account Type:</label>
+    <select id="user_type" name="user_type" required>
+      <option value="buyer">Buyer</option>
+      <option value="merchant">Merchant</option>
+    </select>
+    <br />
+    <div id="buyer-form" style="display: none;">{{ buyer_form.as_p }}</div>
+    <div id="merchant-form" style="display: none;">{{ merchant_form.as_p }}</div>
+    <button type="submit">Sign Up</button>
+  </form>
+{% endblock %}
+
+{% block extra_js %}
+  <script>
+    const userTypeSelect = document.getElementById('user_type')
+    const buyerForm = document.getElementById('buyer-form')
+    const merchantForm = document.getElementById('merchant-form')
+    
+    buyerForm.style.display = 'block'
+    merchantForm.style.display = 'none'
+    
+    userTypeSelect.addEventListener('change', function () {
+      if (this.value === 'merchant') {
+        buyerForm.style.display = 'none'
+        merchantForm.style.display = 'block'
+      } else if (this.value === 'buyer') {
+        buyerForm.style.display = 'block'
+        merchantForm.style.display = 'none'
+      }
+    })
+  </script>
+{% endblock %}

@@ -1,30 +1,61 @@
 {% extends 'base.html' %}
-
-{% block title %}
-  Discover Products
-{% endblock %}
-
+{% load static %}
+{% block title %}Discover Products{% endblock %}
 {% block body %}
-  <form method="GET">
-    <label for="category">Filter by category:</label>
-    <select name="category" id="category">
-      <option value="all">All Categories</option>
-      {% for category_key, category_value in categories %}
-        <option value="{{ category_key }}">{{ category_value }}</option>
-      {% endfor %}
-    </select>
-    <button type="submit">Filter</button>
-  </form>
-
-  {% for product in object_list %}
-    <a href="{% url 'products:details' product.slug %}"><h1>{{ product.title }}</h1></a>
-    <p>Category: {{ product.category }}</p>
-    <p>Price: {{ product.price }}</p>
-
-    {% with product.images.first as first_image %}
-      <img src="{{ first_image.image.url }}" alt="{{ first_image.image.caption }}" width="200" height="100" />
-    {% endwith %}
-
-    <img src="" />
-  {% endfor %}
+<header class="navbar navbar-expand-lg navbar-dark bg-primary mb-4">
+    <div class="container">
+        <a class="navbar-brand" href="#">Super Commerce</a>
+        <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+            <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                    {% if user.is_authenticated %} {{ user }} {% else %} User {% endif %}
+                </a>
+                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
+                    {% if user.is_authenticated %}
+                    <li><a class="dropdown-item" href="{% url 'transactions:cart' %}">Cart</a></li>
+                    <li><a class="dropdown-item" href="{% url 'account:logout' %}">Logout</a></li>
+                    {% else %}
+                    <li><a class="dropdown-item" href="{% url 'account:login' %}">Login</a></li>
+                    {% endif %}
+                </ul>
+            </li>
+        </ul>
+    </div>
+</header>
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <form method="GET" class="mb-4">
+                <div class="input-group">
+                    <label for="category" class="input-group-text">Filter by category:</label>
+                    <select name="category" id="category" class="form-select">
+                        <option value="all">All Categories</option>
+                        {% for category_key, category_value in categories %}
+                        <option value="{{ category_key }}">{{ category_value }}</option>
+                        {% endfor %}
+                    </select>
+                    <button type="submit" class="btn btn-primary">Filter</button>
+                </div>
+            </form>
+            {% if object_list %}
+            <div class="row row-cols-1 row-cols-md-3 g-4">
+                {% for product in object_list %}
+                <div class="col">
+                    <div class="card h-100">
+                        <a href="{% url 'products:details' product.slug %}"><img src="{{ product.images.first.image.url }}" class="card-img-top" alt="{{ product.images.first.image.caption }}" /></a>
+                        <div class="card-body">
+                            <a href="{% url 'products:details' product.slug %}" class="card-title h5">{{ product.title }}</a>
+                            <p class="card-text">Category: {{ product.category | title | capfirst }}</p>
+                            <p class="card-text">Price: {{ product.price }}</p>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="alert alert-info" role="alert">No products found for the selected filter.</div>
+            {% endif %}
+        </div>
+    </div>
+</div>
 {% endblock %}

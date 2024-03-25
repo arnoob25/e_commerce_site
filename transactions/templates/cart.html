@@ -1,33 +1,67 @@
 {% extends 'base.html' %}
 {% load template_filters %}
+{% load django_bootstrap5 %}
+
 {% block body %}
-  <h1>Your Cart</h1>
-  <div style="display: flex;">
-    <div style="width: 70%; padding: 0px 30px 30px 0px;">
-      {% for order in object_list %}
-        {% with form=forms|get_item:order.id %}
-          <div style="border: 1px solid #ccc; padding: 10px; margin-bottom: 10px;">
-            <h2>{{ order.product.title }}</h2>
-            <p>Unit Price: {{ order.unit_price }}</p>
-            <form method="POST">
-              {% csrf_token %}
-              <input type="hidden" name="order_id" value="{{ order.id }}" />
-              {{ form.as_p }}
-              <button type="submit">Update Order</button>
-            </form>
-            <p>Discount: {{ order.discount }}%</p>
-            <p>Final Cost: {{ order.final_cost }}</p>
-          </div>
-        {% endwith %}
-        {% empty %}
-        <p>Your cart is empty.</p>
-      {% endfor %}
+<header class="navbar navbar-expand-lg navbar-dark bg-primary mb-4">
+    <div class="container">
+        <a class="navbar-brand" href="{% url 'products:list' %}">
+            <i class="bi bi-arrow-left me-2"></i>
+            Super Commerce
+        </a>
     </div>
-    <div style="width: 30%; padding: 30px; border: 1px solid #ccc;">
-      <h3>Subtotal: {{ subtotal }}</h3>
-      <!-- Add address section here -->
-      <!--Add payment section here-->
-      <button>Checkout</button>
+</header>
+
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <h1 class="mb-4">Your Cart</h1>
+            <div class="row">
+                <div class="col-md-7">
+                    {% for order in object_list %}
+                    {% with form=forms|get_item:order.id %}
+                    <div class="card mb-4">
+                        <div class="card-body">
+                            <h2 class="card-title">{{ order.product.title }}</h2>
+                            <p class="card-text">Unit Price: {{ order.unit_price }}</p>
+                            <form method="POST">
+                                {% csrf_token %}
+                                <input type="hidden" name="order_id" value="{{ order.id }}" />
+                                {% bootstrap_form form %}
+                                <button type="submit" class="btn btn-primary">Update Order</button>
+                            </form>
+                            <p class="card-text">Discount: {{ order.discount }}%</p>
+                            <p class="card-text">Final Cost: {{ order.final_cost }}</p>
+                            <form method="POST" action="{% url 'transactions:cart' %}">
+                                {% csrf_token %}
+                                <input type="hidden" name="order_id" value="{{ order.id }}" />
+                                <input type="hidden" name="delete_order" value="True" />
+                                <button type="submit" class="btn btn-danger">Delete Order</button>
+                            </form>
+                        </div>
+                    </div>
+                    {% endwith %}
+                    {% empty %}
+                    <div class="alert alert-info" role="alert">Your cart is empty.</div>
+                    {% endfor %}
+                </div>
+                <div class="col-md-5">
+                    <div class="card">
+                        <div class="card-body">
+                            <h3 class="card-title">Subtotal: {{ subtotal }}</h3>
+                            <br />
+                            <form method="POST" action="{% url 'transactions:cart' %}" id="transaction-form">
+                                {% csrf_token %}
+                                <h5 class="mb-3">Delivery Address:</h5>
+                                {% bootstrap_form buyer_info_form %}
+                                {% bootstrap_form payment_form %}
+                                <button type="submit" name="checkout" class="btn btn-primary">Checkout</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
-  </div>
+</div>
 {% endblock %}

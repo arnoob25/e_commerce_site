@@ -6,11 +6,13 @@ from django.urls import path, include
 
 from products import urls as product_urls
 from transactions import urls as transaction_urls
+from user_management import urls as account_urls
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include(product_urls)),
     path('user/', include(transaction_urls)),
+    path('account/', include(account_urls)),
 ]
 
 if settings.DEBUG:

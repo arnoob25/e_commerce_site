@@ -1,12 +1,51 @@
 {% extends 'base.html' %}
+{% load static %}
 
-{% block title %}{{ product.title }}{% endblock title %}
+{% block title %}{{ product.title }}{% endblock %}
 
 {% block body %}
-    <h1>{{ product.title }}</h1>
-    <p>{{ product.description }}</p>
-    <p>Category: {{ product.category }}</p>
-    <p>Price: {{ product.price }}</p>
-    <p>Stock: {{ product.stock }}</p>
-    <p>Seller: {{ product.seller.username }}</p>
-{% endblock body %}
+<header class="navbar navbar-expand-lg navbar-dark bg-primary mb-4">
+    <div class="container">
+        <a class="navbar-brand" href="{% url 'products:m-list' %}">
+            <i class="bi bi-arrow-left me-2"></i>
+            Merchant Dashboard
+        </a>
+        <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+            <li class="nav-item">
+                <a class="nav-link" href="{% url 'account:logout' %}">Logout</a>
+            </li>
+        </ul>
+    </div>
+</header>
+
+<div class="container my-5">
+    <a href="{% url 'products:m-list' %}" class="btn btn-secondary mb-3">Back to Products</a>
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="row g-0 bg-white shadow-sm p-4 rounded">
+                <div class="col-md-4">
+                    <img src="{{ product.images.first.image.url }}" class="img-fluid rounded" alt="{{ product.images.first.image.caption }}">
+                </div>
+                <div class="col-md-8">
+                    <div class="p-4">
+                        <h1 class="card-title mb-4">{{ product.title }}</h1>
+                        <p class="card-text mb-3">{{ product.description }}</p>
+                        <div class="d-flex mb-3">
+                            <span class="fw-bold me-3">Category:</span>
+                            <span>{{ product.category }}</span>
+                        </div>
+                        <div class="d-flex mb-3">
+                            <span class="fw-bold me-3">Price:</span>
+                            <span>{{ product.price }}</span>
+                        </div>
+                        <div class="d-flex mb-4">
+                            <span class="fw-bold me-3">Stock:</span>
+                            <span>{{ product.stock }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
